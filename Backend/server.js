@@ -4,7 +4,7 @@ const mysql = require("mysql");
 
 const app = express();
 app.use(express.json());
-app.use(cors()); // You can configure this more specifically if needed
+app.use(cors()); 
 
 const db = mysql.createConnection({
     host: "localhost",
@@ -33,8 +33,15 @@ app.get("/", (req, res) => {
 });
 
 app.post('/create', (req, res) => {
-    const sql = "INSERT INTO student (Name, Email) VALUES (?)"; // Corrected SQL
-    const values = [req.body.name, req.body.email];
+    const { name, email } = req.body;
+
+    if (!name || !email) {
+        console.error("Validation failed: name and email are required");
+        return res.status(400).json({ error: "Name and email are required" });
+    }
+
+    const sql = "INSERT INTO student (Name, Email) VALUES (?)"; 
+    const values = [name, email];
     db.query(sql, [values], (err, data) => {
         if (err) {
             console.error(err);
@@ -45,10 +52,16 @@ app.post('/create', (req, res) => {
 });
 
 app.put('/update/:id', (req, res) => {
-    const sql = "UPDATE student SET Name = ?, Email = ? WHERE ID = ?";
-    const values = [req.body.name, req.body.email];
+    const { name, email } = req.body;
     const id = req.params.id;
 
+    if (!name || !email) {
+        console.error("Validation failed: name and email are required");
+        return res.status(400).json({ error: "Name and email are required" });
+    }
+
+    const sql = "UPDATE student SET Name = ?, Email = ? WHERE ID = ?";
+    const values = [name, email];
     db.query(sql, [...values, id], (err, data) => {
         if (err) {
             console.error(err);
